@@ -17,30 +17,6 @@ import moon3Img from '../img/moon3.jpg';
 import moon4Img from '../img/moon4.jpg';
 import asteroidImg from '../img/asteroid.jpg';
 
-function createAsteroid(texture) {
-    const asteroidGeometry = new THREE.SphereGeometry(0.2, 20, 20);
-    const asteroidMaterial = new THREE.MeshStandardMaterial({
-        map: texture,
-    });
-    const asteroid = new THREE.Mesh(asteroidGeometry, asteroidMaterial);
-
-    
-    asteroid.position.set(
-        Math.random() * 100 - 50, 
-        Math.random() * 20 - 10,  
-        Math.random() * 100 - 50  
-    );
-
-    const scale = Math.random() * 0.5 + 0.3; 
-    asteroid.scale.set(scale, scale, scale);
-
-    return asteroid;
-}
-
-//loading 3d models
-const spaceShip = new URL('../assets/source/shuttle.glb', import.meta.url);
-const alienShip = new URL('../assets/alienShip.glb', import.meta.url);
-
 //shadow effects
 const renderer = new THREE.WebGLRenderer(); 
 renderer.setSize(window.innerWidth,window.innerHeight);
@@ -136,6 +112,10 @@ moon4.receiveShadow = true;
 saturn.add(moon4Mesh);
 
 //adding 3d models to the scene
+
+//loading 3d models
+const spaceShip = new URL('../assets/source/shuttle.glb', import.meta.url);
+const alienShip = new URL('../assets/alienShip.glb', import.meta.url);
 const assetLoader = new GLTFLoader();
 
 //add spaceship
@@ -176,15 +156,13 @@ assetLoader.load(alienShip.href, function(gltf){
     console.error(error);
 });
 
-
+//lighting effects
 const directionalLight = new THREE.DirectionalLight(0xFFFFFF);
 directionalLight.position.set(0,0,50);
 scene.add(directionalLight);
 directionalLight.castShadow = true;
 
-
-
-
+//creating skybox 
 const cubeTextureLoader = new THREE.CubeTextureLoader();
 scene.background = cubeTextureLoader.load([
     bkg1_right,   // Positive X
@@ -195,23 +173,39 @@ scene.background = cubeTextureLoader.load([
     bkg1_back     // Negative Z
 ]);
 
+//code to create randomised asteroids
+function createAsteroid(texture) {
+    const asteroidGeometry = new THREE.SphereGeometry(0.2, 20, 20);
+    const asteroidMaterial = new THREE.MeshStandardMaterial({
+        map: texture,
+    });
+    const asteroid = new THREE.Mesh(asteroidGeometry, asteroidMaterial);
+
+    
+    asteroid.position.set(
+        Math.random() * 100 - 50, 
+        Math.random() * 20 - 10,  
+        Math.random() * 100 - 50  
+    );
+
+    const scale = Math.random() * 0.5 + 0.3; 
+    asteroid.scale.set(scale, scale, scale);
+
+    return asteroid;
+}
+
 const particleCount = 60;
 const particles = new THREE.Group();
-
 for (let i = 0; i < particleCount; i++) {
     const asteroidTexture = textureLoader.load(asteroidImg); // Use the same texture as asteroids
     const particleAsteroid = createAsteroid(asteroidTexture);
 
     particles.add(particleAsteroid);
 }
-
 scene.add(particles);
 
-
-
-
-function animate(time){ //custom function to change camera position
-    // saturn.rotation.x = time / 1000;
+//animation effects
+function animate(time){ 
     saturn.rotation.y = time / 2000;
     sun.rotation.y = time / 2000;
     ring.rotation.z = time / 2000;
@@ -229,8 +223,9 @@ function animate(time){ //custom function to change camera position
 }
 
 
-renderer.setAnimationLoop(animate); //function to loop over a animation
+renderer.setAnimationLoop(animate); 
 
+//responsiveness handler
 window.addEventListener('resize',function(){
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
